@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const { readJSON, writeJSON } = require("../utils/store");
-const config = require("../config.json");
+const config = require("../config");
 const telegram = require("../utils/telegram");
 
 const router = express.Router();

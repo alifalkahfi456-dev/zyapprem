@@ -35,7 +35,7 @@ frontend/
   vercel.json
 ```
 
-## Menjalankan backend (lokal / server)
+## Menjalankan backend (lokal / VPS, pakai config.json)
 
 ```bash
 cd backend
@@ -47,9 +47,31 @@ npm start
 
 Backend berjalan di `http://localhost:5000` (atau `process.env.PORT` bila di-deploy).
 
+## Deploy ke Railway / Render (tanpa config.json, pakai Environment Variables)
+
+`config.json` sengaja tidak ikut ke GitHub (ada di `.gitignore`) karena isinya
+secret. Backend ini mendukung 2 cara baca config lewat `backend/config.js`:
+kalau `config.json` ada, dipakai; kalau tidak ada, otomatis fallback ke
+environment variable berikut (isi ini di dashboard Railway/Render → tab
+**Variables**):
+
+| Env Var | Fungsi | Contoh |
+|---|---|---|
+| `PORT` | Port server (biasanya auto-diisi platform) | `5000` |
+| `JWT_SECRET` | Kunci sign token login | hasil `crypto.randomBytes(32).toString('hex')` |
+| `JWT_EXPIRES_IN` | Lama token berlaku | `7d` |
+| `CORS_ORIGIN` | Domain frontend yang diizinkan akses | `https://zyapprem.vercel.app` |
+| `PREMKU_BASE_URL` | Base URL API premku.com | `https://premku.com/api` |
+| `PREMKU_API_KEY` | API key premku.com Anda | — |
+| `TELEGRAM_BOT_TOKEN` | Token bot Telegram (opsional) | — |
+| `TELEGRAM_OWNER_CHAT_ID` | Chat ID owner buat notifikasi (opsional) | — |
+| `ADMIN_SEED_EMAIL` | Email admin awal (hanya dipakai sekali) | `admin@store.com` |
+| `ADMIN_SEED_PASSWORD` | Password admin awal (hanya dipakai sekali) | `admin123` |
+
+Semua opsional kecuali dibutuhkan fiturnya — kalau tidak diisi, ada default aman.
+
 Akun admin awal (seed otomatis saat database.json kosong):
-- Email: sesuai `admin.seedEmail` di config.json (default `admin@store.com`)
-- Password: sesuai `admin.seedPassword` (default `admin123`)
+- Email/password sesuai `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD` (atau default di atas)
 - **Segera login dan ganti password ini lewat halaman Profil setelah deploy.**
 
 ## Menjalankan frontend

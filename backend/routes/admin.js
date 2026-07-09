@@ -3,7 +3,7 @@ const { readJSON, writeJSON } = require("../utils/store");
 const { requireAuth, requireAdmin } = require("../middleware/auth");
 const telegram = require("../utils/telegram");
 const premku = require("../api");
-const config = require("../config.json");
+const config = require("../config");
 
 const router = express.Router();
 router.use(requireAuth, requireAdmin);

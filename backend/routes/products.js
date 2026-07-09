@@ -2,7 +2,7 @@ const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const { readJSON, writeJSON } = require("../utils/store");
 const { requireAuth } = require("../middleware/auth");
-const config = require("../config.json");
+const config = require("../config");
 const premku = require("../api");
 const telegram = require("../utils/telegram");
 
