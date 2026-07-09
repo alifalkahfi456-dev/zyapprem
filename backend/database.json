@@ -1,0 +1,86 @@
+{
+  "users": [
+    {
+      "id": "00224f40-7685-4301-b5cd-496e06dc5c7d",
+      "email": "admin@store.com",
+      "password": "$2a$10$nFcMW6pWyt7WcMvIsf4SIOEr/xlgY36BbjeMH1lKVOmROzwMPvsgC",
+      "name": "Administrator",
+      "role": "admin",
+      "createdAt": "2026-07-08T19:14:44.891Z"
+    },
+    {
+      "id": "22184fc6-277d-4caa-9cef-cc748dee229c",
+      "name": "Budi Tester",
+      "email": "budi@test.com",
+      "password": "$2a$10$OFPKD98CwQao1G4.O9x80OR4TGbI12Mme7YN4/aXORHJ1xAYH.wna",
+      "role": "user",
+      "createdAt": "2026-07-08T19:14:44.975Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "f25ff7d8-de01-464b-a8f5-6b4440c5a554",
+      "userId": "22184fc6-277d-4caa-9cef-cc748dee229c",
+      "type": "topup",
+      "amount": 50000,
+      "fee": 0,
+      "method": "qris",
+      "status": "pending",
+      "createdAt": "2026-07-08T19:15:05.452Z"
+    },
+    {
+      "id": "a2fd068c-065b-4955-af3a-d649e321ee21",
+      "userId": "22184fc6-277d-4caa-9cef-cc748dee229c",
+      "type": "topup",
+      "amount": 75000,
+      "fee": 0,
+      "method": "qris",
+      "status": "approved",
+      "createdAt": "2026-07-08T19:15:26.412Z",
+      "approvedAt": "2026-07-08T19:15:26.567Z"
+    },
+    {
+      "id": "36f63498-43aa-41d0-8b22-5326fb54d347",
+      "userId": "22184fc6-277d-4caa-9cef-cc748dee229c",
+      "type": "purchase",
+      "amount": 15750,
+      "method": "saldo",
+      "status": "success",
+      "productName": "Canva Pro",
+      "createdAt": "2026-07-08T19:43:22.928Z"
+    },
+    {
+      "id": "9f107e1c-43ec-4e0b-9e7a-d9a0065437df",
+      "userId": "22184fc6-277d-4caa-9cef-cc748dee229c",
+      "type": "purchase",
+      "amount": 26250,
+      "method": "saldo",
+      "status": "success",
+      "productName": "Spotify Premium",
+      "createdAt": "2026-07-09T00:18:23.693Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "badd3406-b1ef-486a-92f5-7ddb42d84609",
+      "userId": "22184fc6-277d-4caa-9cef-cc748dee229c",
+      "productId": "canva-1p",
+      "productName": "Canva Pro",
+      "price": 15750,
+      "status": "success",
+      "premkuRef": null,
+      "createdAt": "2026-07-08T19:43:22.928Z"
+    },
+    {
+      "id": "074e03db-2c61-479e-aebe-768ed6310377",
+      "userId": "22184fc6-277d-4caa-9cef-cc748dee229c",
+      "productId": "spotify-1p",
+      "productName": "Spotify Premium",
+      "price": 26250,
+      "status": "success",
+      "premkuRef": null,
+      "createdAt": "2026-07-09T00:18:23.693Z"
+    }
+  ],
+  "sessions": []
+}

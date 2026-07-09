@@ -1,0 +1,38 @@
+{
+  "app": {
+    "name": "Premium Store",
+    "port": 5000,
+    "jwtSecret": "GANTI_DENGAN_SECRET_RAHASIA_ANDA",
+    "jwtExpiresIn": "7d",
+    "corsOrigin": "https://your-frontend.vercel.app"
+  },
+  "telegram": {
+    "botToken": "ISI_TOKEN_BOT_TELEGRAM_ANDA",
+    "ownerChatId": "ISI_CHAT_ID_TELEGRAM_OWNER",
+    "notify": {
+      "newRegister": true,
+      "newLogin": true,
+      "topupRequest": true,
+      "topupApproved": true,
+      "purchase": true,
+      "lowBalanceAlert": 5000
+    }
+  },
+  "premku": {
+    "baseUrl": "https://premku.com/api",
+    "apiKey": "ISI_APIKEY_PREMKU_ANDA",
+    "timeoutMs": 15000
+  },
+  "fee": {
+    "topupPercent": 0,
+    "topupFlat": 0,
+    "purchaseMarkupPercent": 5,
+    "minTopup": 10000,
+    "maxTopup": 5000000
+  },
+  "admin": {
+    "seedEmail": "admin@store.com",
+    "seedPassword": "admin123",
+    "note": "Password seed ini hanya dipakai sekali saat database.json kosong. Segera ganti setelah login pertama."
+  }
+}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Beli akun premium favoritmu, dibayar pakai saldo dan diproses otomatis.">
+<title>Beli Akun Premium — Premium Store</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230b1220%27/%3E%3Cpath d=%27M16 4L26 9V16C26 21.8 21.8 26.8 16 28.4C10.2 26.8 6 21.8 6 16V9L16 4Z%27 fill=%27%233b8eff%27/%3E%3Cpath d=%27M11.5 16.3L14.6 19.4L20.5 12.5%27 stroke=%27white%27 stroke-width=%272.2%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 fill=%27none%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.product-card {
+  background: linear-gradient(180deg, var(--bg-card), var(--bg-elevated));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; display: flex; flex-direction: column; gap: 12px;
+  transition: transform .2s ease, border-color .2s ease;
+}
+.product-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+.product-unavailable { opacity: 0.55; }
+.product-icon-wrap { width: 52px; height: 52px; border-radius: 14px; overflow: hidden; background: var(--accent-soft); }
+.product-img { width: 52px; height: 52px; object-fit: cover; border-radius: 14px; }
+.product-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--accent-soft); display: grid; place-items: center; }
+.product-icon-fallback { width: 52px; height: 52px; border-radius: 14px; background: var(--accent-soft); place-items: center; }
+.product-price { font-family: var(--font-mono); font-size: 18px; font-weight: 600; }
+@media(max-width:960px) { .product-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:580px)  { .product-grid { grid-template-columns: 1fr; } }
+
+/* Account modal */
+.acct-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(5,7,13,0.88); backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  opacity: 0; pointer-events: none; transition: opacity .25s ease;
+}
+.acct-overlay.active { opacity: 1; pointer-events: all; }
+.acct-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px; max-width: 420px; width: 100%;
+  transform: scale(.93); transition: transform .25s cubic-bezier(.22,1,.36,1);
+}
+.acct-overlay.active .acct-box { transform: scale(1); }
+.acct-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+.account-item { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; }
+.account-divider { height: 12px; }
+.account-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.account-row:last-child { margin-bottom: 0; }
+.account-label { font-size: 12px; color: var(--muted); width: 130px; flex-shrink: 0; }
+.account-val { font-family: var(--font-mono); font-size: 13px; color: var(--text); flex: 1; word-break: break-all; }
+.btn-copy {
+  background: var(--accent-soft); border: none; color: var(--accent-2);
+  border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: background .15s; flex-shrink: 0;
+}
+.btn-copy:hover { background: rgba(59,142,255,.25); }
+.acct-note { font-size: 12px; color: var(--muted); margin-top: 16px; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <div class="glow-bg">
+    <div class="glow-orb a"></div>
+    <div class="glow-orb b"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <span class="brand">
+        <span class="logo-ring">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L20 6.5V12C20 16.6 16.6 20.6 12 22C7.4 20.6 4 16.6 4 12V6.5L12 2Z" stroke="#5ec8ff" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M8.5 12.2L10.8 14.5L15.5 9.5" stroke="#5ec8ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        Premium Store
+      </span>
+      <nav class="nav-links">
+        <a href="produk.html" class="active">Beli Akun</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="topup.html">Topup</a>
+        <a href="profile.html">Profil</a>
+        <a href="#" id="navAdmin" class="hidden">Admin</a>
+      </nav>
+      <div class="user-chip">
+        <span class="avatar" id="avatarInitials">--</span>
+        <span id="chipName">Memuat...</span>
+        <button class="btn-sm btn-ghost" id="btnLogout" style="padding:6px 12px;border-radius:999px;">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container page">
+    <div class="page-header fade-in flex-between" style="align-items:flex-start;">
+      <div>
+        <span class="eyebrow">Etalase</span>
+        <h1>Beli akun premium</h1>
+        <p class="mt-8">Bayar pakai saldo, akun langsung diproses otomatis.</p>
+      </div>
+      <div class="balance-card" style="padding:14px 20px; min-width:160px; text-align:right;">
+        <p class="text-sm">Saldo kamu</p>
+        <div class="balance-amount" id="headerBalance" style="font-size:20px;">Rp0</div>
+      </div>
+    </div>
+
+    <div class="product-grid stagger" id="productGrid">
+      <div class="skeleton" style="height:200px;border-radius:16px;"></div>
+      <div class="skeleton" style="height:200px;border-radius:16px;"></div>
+      <div class="skeleton" style="height:200px;border-radius:16px;"></div>
+    </div>
+  </main>
+
+  <!-- Account modal -->
+  <div class="acct-overlay" id="accountModal">
+    <div class="acct-box">
+      <div class="acct-title" id="accountModalTitle">Akun Kamu</div>
+      <div id="accountList"></div>
+      <p class="acct-note">⚠️ Simpan akun ini. Tidak bisa dilihat ulang setelah ditutup.</p>
+      <button class="btn btn-ghost" id="btnCloseAccount" style="margin-top:20px;width:100%;">Tutup & Simpan</button>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/produk.js"></script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Isi saldo dengan QRIS, otomatis masuk tanpa konfirmasi manual.">
+<title>Topup — Premium Store</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230b1220%27/%3E%3Cpath d=%27M16 4L26 9V16C26 21.8 21.8 26.8 16 28.4C10.2 26.8 6 21.8 6 16V9L16 4Z%27 fill=%27%233b8eff%27/%3E%3Cpath d=%27M11.5 16.3L14.6 19.4L20.5 12.5%27 stroke=%27white%27 stroke-width=%272.2%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 fill=%27none%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* QRIS Modal */
+  .qris-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(5,7,13,0.88);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .qris-overlay.active { opacity: 1; pointer-events: all; }
+  .qris-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    max-width: 360px; width: 100%;
+    text-align: center;
+    transform: scale(0.93);
+    transition: transform 0.25s cubic-bezier(0.22,1,0.36,1);
+  }
+  .qris-overlay.active .qris-box { transform: scale(1); }
+  .qris-label { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-2); font-weight: 600; margin-bottom: 6px; }
+  .qris-nominal { font-family: var(--font-mono); font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 20px; }
+  #qrisImage { width: 220px; height: 220px; border-radius: 12px; border: 4px solid white; margin: 0 auto 20px; display: block; background: #fff; }
+  .qris-status { font-size: 14px; font-weight: 500; padding: 10px 16px; border-radius: 999px; display: inline-block; margin-bottom: 20px; }
+  .qris-status.pending { background: rgba(255,193,7,0.12); color: #ffcd4d; }
+  .qris-status.success { background: rgba(46,230,168,0.12); color: var(--success); }
+  .qris-status.timeout { background: rgba(255,84,112,0.12); color: var(--danger); }
+  .qris-note { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+  .btn-close-qris {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); border-radius: 999px;
+    padding: 10px 24px; font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-close-qris:hover { border-color: var(--accent); color: var(--text); }
+</style>
+</head>
+<body>
+  <div class="glow-bg">
+    <div class="glow-orb a"></div>
+    <div class="glow-orb b"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <span class="brand">
+        <span class="logo-ring">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L20 6.5V12C20 16.6 16.6 20.6 12 22C7.4 20.6 4 16.6 4 12V6.5L12 2Z" stroke="#5ec8ff" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M8.5 12.2L10.8 14.5L15.5 9.5" stroke="#5ec8ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        Premium Store
+      </span>
+      <nav class="nav-links">
+        <a href="produk.html">Beli Akun</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="topup.html" class="active">Topup</a>
+        <a href="profile.html">Profil</a>
+        <a href="#" id="navAdmin" class="hidden">Admin</a>
+      </nav>
+      <div class="user-chip">
+        <span class="avatar" id="avatarInitials">--</span>
+        <span id="chipName">Memuat...</span>
+        <button class="btn-sm btn-ghost" id="btnLogout" style="padding:6px 12px; border-radius:999px;">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container page">
+    <div class="page-header fade-in">
+      <span class="eyebrow">Isi Ulang</span>
+      <h1>Topup Saldo</h1>
+      <p class="mt-8">Saldo masuk otomatis setelah QRIS dibayar — tidak perlu konfirmasi manual.</p>
+    </div>
+
+    <div class="grid-2">
+      <!-- Form topup -->
+      <div class="card fade-in">
+        <h3 style="font-size:16px; margin-bottom:20px;">Jumlah topup</h3>
+        <div id="formTopup">
+          <div class="field">
+            <label>Nominal (Rp)</label>
+            <input type="number" id="topupAmount" min="10000" step="1000" placeholder="Contoh: 50000">
+          </div>
+          <button class="btn btn-primary" id="btnTopup">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="#051022" stroke-width="2"/><path d="M2 10H22" stroke="#051022" stroke-width="2"/></svg>
+            <span>Bayar dengan QRIS</span>
+          </button>
+          <p class="text-sm mt-16" style="display:flex;align-items:center;gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z" stroke="#7c8aa8" stroke-width="1.6"/><path d="M12 8V13M12 16H12.01" stroke="#7c8aa8" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Pembayaran otomatis via QRIS
+          </p>
+        </div>
+      </div>
+
+      <!-- Nominal cepat -->
+      <div class="card fade-in">
+        <h3 style="font-size:16px; margin-bottom:14px;">Nominal cepat</h3>
+        <div class="stagger" style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px;">
+          <button type="button" class="btn btn-ghost quick-amount" data-amount="20000">Rp20.000</button>
+          <button type="button" class="btn btn-ghost quick-amount" data-amount="50000">Rp50.000</button>
+          <button type="button" class="btn btn-ghost quick-amount" data-amount="100000">Rp100.000</button>
+          <button type="button" class="btn btn-ghost quick-amount" data-amount="250000">Rp250.000</button>
+          <button type="button" class="btn btn-ghost quick-amount" data-amount="500000">Rp500.000</button>
+          <button type="button" class="btn btn-ghost quick-amount" data-amount="1000000">Rp1.000.000</button>
+        </div>
+        <div class="mt-24" style="border-top:1px solid var(--border); padding-top:18px;">
+          <p class="text-sm">
+            Setelah klik <strong style="color:var(--text);">Bayar dengan QRIS</strong>, QR code muncul langsung. Scan dari aplikasi bank/e-wallet manapun.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Riwayat -->
+    <div class="page-header mt-32">
+      <span class="eyebrow">Riwayat</span>
+      <h2 style="font-size:20px;">Riwayat topup</h2>
+    </div>
+    <div class="table-wrap fade-in">
+      <table>
+        <thead>
+          <tr><th>Tanggal</th><th>Nominal</th><th>Metode</th><th>Status</th></tr>
+        </thead>
+        <tbody id="topupBody">
+          <tr><td colspan="4"><div class="skeleton" style="height:18px;"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- QRIS Modal -->
+  <div class="qris-overlay" id="qrisModal">
+    <div class="qris-box">
+      <div class="qris-label">Scan & Bayar</div>
+      <div class="qris-nominal" id="qrisAmount">Rp0</div>
+      <img id="qrisImage" src="" alt="QR Code" />
+      <div class="qris-status pending" id="qrisStatus">Menunggu pembayaran...</div>
+      <p class="qris-note">Scan QR ini dari aplikasi bank atau e-wallet (GoPay, OVO, DANA, ShopeePay, dll). Saldo masuk otomatis setelah terbayar.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-close-qris" id="btnCancelDeposit" style="color:var(--danger);border-color:rgba(255,84,112,0.4);">Batalkan</button>
+        <button class="btn-close-qris" id="btnCloseQris">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/topup.js"></script>
+</body>
+</html>
